@@ -13,4 +13,7 @@
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
         </activity>
     </application>
+    <queries>
+        <package android:name="com.google.ar.core" />
+    </queries>
 </manifest>
