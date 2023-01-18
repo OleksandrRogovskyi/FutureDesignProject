@@ -6,8 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/GPSTesting.unity
-    guid: f01107543c8722a4399810254a5fe7b6
-    path: Assets/ARDKExamples/ImageDetection/ImageDetection.unity
-    guid: bc41ff5c278cd4dedae835cda53c1001
+    path: Assets/Scenes/ARScene.unity
+    guid: f32f890464de78644ab879dc9f61320c
   m_configObjects: {}
