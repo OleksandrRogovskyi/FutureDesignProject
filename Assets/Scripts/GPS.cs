@@ -173,7 +173,7 @@ public class GPS : MonoBehaviour
             description[1].text = "Distance to end location: " + String.Format("{0:0.000}", _distanceToEnd) + " km";
             description[2].text = "Distance to test location: " + _distanceToTest + " km";
 
-            if (_distanceToEnd <= 0.01f)
+            if (_distanceToTest <= 0.01f)
             {
                 description[2].text = "Arrived at end location";
                 onEndLocationReached.Invoke();
