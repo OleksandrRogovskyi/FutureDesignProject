@@ -129,7 +129,12 @@ public class GPS : MonoBehaviour
         description[0].gameObject.SetActive(true);
         button.SetActive(false);
     }
-
+    public void ReachedEndLoc()
+    {
+        description[1].text = "Arrived at end location";
+        onEndLocationReached.Invoke();
+        locReached = true;
+    }
     private double _distanceToEnd;
     private double _distanceToTest;
     private bool locReached = false; 
@@ -167,15 +172,14 @@ public class GPS : MonoBehaviour
 
             _distanceToEnd = CalculateDistance(Input.location.lastData.latitude, Input.location.lastData.longitude,
                 endLocation[0], endLocation[1]);
-            _distanceToTest = CalculateDistance(Input.location.lastData.latitude, Input.location.lastData.longitude,
-                testLocation[0], testLocation[1]);
+            /*_distanceToTest = CalculateDistance(Input.location.lastData.latitude, Input.location.lastData.longitude,
+                testLocation[0], testLocation[1]);*/
             
-            description[1].text = "Distance to end location: " + String.Format("{0:0.000}", _distanceToEnd) + " km";
-            description[2].text = "Distance to test location: " + _distanceToTest + " km";
+            description[1].text = "Distance to end location: " + String.Format("{0:0.00}", _distanceToEnd) + " km";
 
-            if (_distanceToTest <= 0.01f)
+            if (_distanceToEnd <= 0.01f)
             {
-                description[2].text = "Arrived at end location";
+                description[1].text = "Arrived at end location";
                 onEndLocationReached.Invoke();
                 locReached = true;
                 //Input.location.Stop();
