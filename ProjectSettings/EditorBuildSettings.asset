@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Placement.unity
-    guid: 0ad8979b335c6ff4faa4f3f31e004057
+    path: Assets/ARDKExamples/ImageDetection/ImageDetection.unity
+    guid: bc41ff5c278cd4dedae835cda53c1001
   m_configObjects: {}

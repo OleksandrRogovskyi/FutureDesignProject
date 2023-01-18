@@ -1,6 +1,7 @@
 // Copyright 2022 Niantic, Inc. All Rights Reserved.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,7 +14,8 @@ using Niantic.ARDK.Extensions;
 using Niantic.ARDK.Utilities;
 
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
+using Button = UnityEngine.UI.Button;
 
 namespace Niantic.ARDKExamples
 {
@@ -70,6 +72,9 @@ namespace Niantic.ARDKExamples
     [SerializeField]
     private Button _toggleYetiButton;
     
+    [Header("KukiBus Stuff")]
+    public GameObject cube;
+    public GameObject KukiBus;
     // A handle to the yeti image, used to remove and insert it into the _codeImageDetectionManager.
     private IARReferenceImage _yetiImage;
     
@@ -203,7 +208,7 @@ namespace Niantic.ARDKExamples
       else
         _imageDetectionManager.RemoveImage(_yetiImage);
     }
-
+    private static GameObject gameObjectOnImage = null;
     private void OnAnchorsAdded(AnchorsArgs args)
     {
       foreach (var anchor in args.Anchors)
@@ -216,17 +221,50 @@ namespace Niantic.ARDKExamples
 
         GameObject newPlane = Instantiate(_plane);
         newPlane.name = "Image-" + imageName;
-        SetPlaneColor(newPlane, imageName);
+        //SetPlaneColor(newPlane, imageName);
         _detectedImages[anchor.Identifier] = newPlane;
 
         UpdatePlaneTransform(imageAnchor);
+        
+        gameObjectOnImage = Instantiate(cube);
+        _detectedImages[anchor.Identifier] = gameObjectOnImage;
       }
+    }
+    private GameObject KukiBusScene = null;
+    public void ResetAncor()
+    {
+      Destroy(KukiBusScene);
+      KukiBusDescendStart();
+    }
+
+    public void KukiBusDescendStart()
+    {
+      Vector3 position = gameObjectOnImage.transform.position;
+      KukiBusScene = Instantiate(KukiBus);
+      KukiBusScene.transform.position = new Vector3(x: position.x, y: position.y + 1f, z: position.z);
+      StartCoroutine(MoveBusDown(KukiBusScene, position));
+    }
+
+    IEnumerator MoveBusDown(GameObject KukiBusRef, Vector3 endPos)
+    {
+      while (KukiBusRef.transform.position.y >= endPos.y + 0.01f)
+      {
+        yield return new WaitForSeconds(0.01f);
+        Vector3 ypos = Vector3.Lerp(KukiBusRef.transform.position, endPos, 1 * Time.deltaTime);
+        KukiBusRef.transform.position = new Vector3(ypos.x, ypos.y, ypos.z);
+      }
+      Debug.Log("landed");
+      yield return null;
+    }
+    public void KukiBusAscend ()
+    {
+      
     }
 
     private void SetPlaneColor(GameObject plane, string imageName)
     {
       var renderer = plane.GetComponentInChildren<MeshRenderer>();
-      Color planeColor = Color.black;
+      Color planeColor = Color.red;
       _imageColors.TryGetValue(imageName, out planeColor);
       renderer.material.color = planeColor;
     }
