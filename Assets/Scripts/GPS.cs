@@ -11,8 +11,8 @@ public class GPS : MonoBehaviour
     private TextMeshProUGUI[] description;
 
     private double[] currentLocation;// [0] - lat , [1] - long
-    private double[] startLocation;
-    private double[] endLocation;
+    [Tooltip("[0] - latitude, [1] - longitude")]
+    [SerializeField]private double[] endLocation;
 
     private List<GPSCoordinate> area;
     internal void PermissionCallbacks_PermissionDeniedAndDontAskAgain(string permissionName)
@@ -32,7 +32,8 @@ public class GPS : MonoBehaviour
     
     IEnumerator Start()
     {
-        currentLocation = new double [2];
+        
+        /*currentLocation = new double [2];
         endLocation = new double [2];
         startLocation = new double [2];
         currentLocation[1] = 53.2339;//lat
@@ -40,10 +41,10 @@ public class GPS : MonoBehaviour
         endLocation[1] = 53.2419615;//lat
         endLocation[0] = 6.5320775;//long
         startLocation[1] = 53.2432299;//lat
-        startLocation[0] = 6.5319715;//long
+        startLocation[0] = 6.5319715;//long*/
         
         
-        description[3].text = "Distance between start and end location: " + Distance(endLocation[1],endLocation[0],startLocation[1], startLocation[0]);
+       // description[3].text = "Distance between start and end location: " + Distance(endLocation[1],endLocation[0],startLocation[1], startLocation[0]);
 
         //Ask for location
         if (Permission.HasUserAuthorizedPermission(Permission.FineLocation))
@@ -108,13 +109,21 @@ public class GPS : MonoBehaviour
 
             description[0].text = "Longitude: " + Input.location.lastData.longitude;
             description[1].text = "Latitude: " + Input.location.lastData.latitude;
-            description[2].text = "Distance to start location: " + Distance(Input.location.lastData.latitude,Input.location.lastData.longitude,startLocation[1], startLocation[0]);
+            description[2].text = "Distance to end location: " + Distance(Input.location.lastData.latitude,Input.location.lastData.longitude,endLocation[0], endLocation[1]);
             //description[2].text = "Altitude: " + Input.location.lastData.altitude;
             //description[3].text = "Horizontal: " + Input.location.lastData.horizontalAccuracy;
         }
 
         // Stops the location service if there is no need to query location updates continuously.
         //Input.location.Stop();
+    }
+
+
+    private void Update()
+    {
+        if(Input.location.status != LocationServiceStatus.Failed)
+            description[2].text = "Distance to end location: " + Distance(Input.location.lastData.latitude,Input.location.lastData.longitude,endLocation[0], endLocation[1]);
+
     }
 
     public static double Distance(double lat1, double lon1, double lat2, double lon2) {
