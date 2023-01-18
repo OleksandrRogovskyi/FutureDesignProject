@@ -1,20 +1,27 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Android;
+using UnityEngine.Events;
 
 public class GPS : MonoBehaviour
 {
+    [SerializeField]
+    private UnityEvent onEndLocationReached;
+    
     [SerializeField]
     private TextMeshProUGUI[] description;
 
     private double[] currentLocation;// [0] - lat , [1] - long
     [Tooltip("[0] - latitude, [1] - longitude")]
     [SerializeField]private double[] endLocation;
+    [SerializeField]private double[] testLocation;
 
-    private List<GPSCoordinate> area;
+    [HideInInspector] public bool canUseLocation;
+    [SerializeField] private GameObject button;
+
     internal void PermissionCallbacks_PermissionDeniedAndDontAskAgain(string permissionName)
     {
         Debug.Log($"{permissionName} PermissionDeniedAndDontAskAgain");
@@ -32,19 +39,9 @@ public class GPS : MonoBehaviour
     
     IEnumerator Start()
     {
-        
-        /*currentLocation = new double [2];
-        endLocation = new double [2];
-        startLocation = new double [2];
-        currentLocation[1] = 53.2339;//lat
-        currentLocation[0] = 6.557598;//long
-        endLocation[1] = 53.2419615;//lat
-        endLocation[0] = 6.5320775;//long
-        startLocation[1] = 53.2432299;//lat
-        startLocation[0] = 6.5319715;//long*/
-        
-        
-       // description[3].text = "Distance between start and end location: " + Distance(endLocation[1],endLocation[0],startLocation[1], startLocation[0]);
+        button.SetActive(false);
+        if (onEndLocationReached == null)
+            onEndLocationReached = new UnityEvent();
 
         //Ask for location
         if (Permission.HasUserAuthorizedPermission(Permission.FineLocation))
@@ -70,7 +67,8 @@ public class GPS : MonoBehaviour
         // Check if the user has location service enabled.
         if (!Input.location.isEnabledByUser)
         {
-            description[0].text = "location not enabled";
+            description[0].text = "Location not enabled. Please turn on your location services and restart the app." +
+                                  "";
             Debug.LogError("location not enabled");
             yield break;
         }
@@ -98,18 +96,25 @@ public class GPS : MonoBehaviour
         // If the connection failed this cancels location service use.
         if (Input.location.status == LocationServiceStatus.Failed)
         {
+            canUseLocation = false;
             description[0].text = "Unable to determine device location";
             Debug.LogError("Unable to determine device location");
             yield break;
         }
         else
         {
-            // If the connection succeeded, this retrieves the device's current location and displays it in the Console window.
-            print("Location: " + Input.location.lastData.latitude + " " + Input.location.lastData.longitude + " " + Input.location.lastData.altitude + " " + Input.location.lastData.horizontalAccuracy + " " + Input.location.lastData.timestamp);
+            description[0].gameObject.SetActive(false);
+            button.SetActive(true);
+            /*canUseLocation = true;
+            
+            description[0].text = "Current location: " + Input.location.lastData.latitude + " , "+ Input.location.lastData.longitude;
+            
+            _distanceToEnd = CalculateDistance(Input.location.lastData.latitude, Input.location.lastData.longitude,
+                endLocation[0], endLocation[1]);
+            
+            description[1].text = "Distance to end location: " + String.Format("{0:0.00}", _distanceToEnd);*/
+            StartCoroutine(UpdateDistance());
 
-            description[0].text = "Longitude: " + Input.location.lastData.longitude;
-            description[1].text = "Latitude: " + Input.location.lastData.latitude;
-            description[2].text = "Distance to end location: " + Distance(Input.location.lastData.latitude,Input.location.lastData.longitude,endLocation[0], endLocation[1]);
             //description[2].text = "Altitude: " + Input.location.lastData.altitude;
             //description[3].text = "Horizontal: " + Input.location.lastData.horizontalAccuracy;
         }
@@ -118,15 +123,71 @@ public class GPS : MonoBehaviour
         //Input.location.Stop();
     }
 
-
-    private void Update()
+    public void CanUseLocation( bool canUse)
     {
-        if(Input.location.status != LocationServiceStatus.Failed)
-            description[2].text = "Distance to end location: " + Distance(Input.location.lastData.latitude,Input.location.lastData.longitude,endLocation[0], endLocation[1]);
-
+        canUseLocation = canUse;
+        description[0].gameObject.SetActive(true);
+        button.SetActive(false);
     }
 
-    public static double Distance(double lat1, double lon1, double lat2, double lon2) {
+    private double _distanceToEnd;
+    private double _distanceToTest;
+    private bool locReached = false; 
+    /*private void Update()
+    {
+        if (Input.location.status != LocationServiceStatus.Failed && !locReached && canUseLocation)
+        {
+            description[0].text = "Current location: " + Input.location.lastData.latitude + " , "+ Input.location.lastData.longitude;
+
+            _distanceToEnd = CalculateDistance(Input.location.lastData.latitude, Input.location.lastData.longitude,
+                endLocation[0], endLocation[1]);
+            _distanceToTest = CalculateDistance(Input.location.lastData.latitude, Input.location.lastData.longitude,
+                testLocation[0], testLocation[1]);
+            
+            description[1].text = "Distance to end location: " + String.Format("{0:0.000}", _distanceToEnd) + " km";
+            description[2].text = "Distance to test location: " + _distanceToTest + " km";
+
+            if (_distanceToEnd <= 0.01f)
+            {
+                description[2].text = "Arrived at end location";
+                onEndLocationReached.Invoke();
+                locReached = true;
+                //Input.location.Stop();
+            }
+        }
+    }*/
+
+    IEnumerator UpdateDistance()
+    {
+        yield return new WaitUntil(() => canUseLocation);
+        while (Input.location.status != LocationServiceStatus.Failed && !locReached && canUseLocation)
+        {
+            yield return new WaitForSeconds(0.0001f);
+            description[0].text = "Current location: " + Input.location.lastData.latitude + " , "+ Input.location.lastData.longitude;
+
+            _distanceToEnd = CalculateDistance(Input.location.lastData.latitude, Input.location.lastData.longitude,
+                endLocation[0], endLocation[1]);
+            _distanceToTest = CalculateDistance(Input.location.lastData.latitude, Input.location.lastData.longitude,
+                testLocation[0], testLocation[1]);
+            
+            description[1].text = "Distance to end location: " + String.Format("{0:0.000}", _distanceToEnd) + " km";
+            description[2].text = "Distance to test location: " + _distanceToTest + " km";
+
+            if (_distanceToEnd <= 0.01f)
+            {
+                description[2].text = "Arrived at end location";
+                onEndLocationReached.Invoke();
+                locReached = true;
+                //Input.location.Stop();
+                
+                yield break;
+            }
+        }
+
+        yield return null;
+    }
+
+    public static double CalculateDistance(double lat1, double lon1, double lat2, double lon2) {
         double R = 6371; // Earth's radius in kilometers
         double dLat = ToRadians(lat2 - lat1);
         double dLon = ToRadians(lon2 - lon1);
@@ -142,59 +203,5 @@ public class GPS : MonoBehaviour
     public static double ToRadians(double angle) {
         return (Math.PI / 180) * angle;
     }
-
-   
+    
 }
-class MainClass {
-    public static void Main (string[] args) {
-        double lat = 40.730610;
-        double lon = -73.935242;
-        double radius = 20; // 20 meters
-
-        // Call the GetArea method and store the result in a list of GPSCoordinate
-        List<GPSCoordinate> area = GetArea(lat, lon, radius);
-        // Iterate through the list and print the latitude and longitude of each coordinate
-        foreach (GPSCoordinate coordinate in area) {
-            Console.WriteLine("Latitude: " + coordinate.Latitude + ", Longitude: " + coordinate.Longitude);
-        }
-    }
-
-    public static List<GPSCoordinate> GetArea(double lat, double lon, double radius) {
-        // Earth's radius in kilometers
-        double R = 6371; 
-        // Convert radius to kilometers
-        double d = radius / 1000; 
-        // Calculate the difference in latitude and longitude
-        double dLat = d/R;
-        double dLon = d/(R*Math.Cos(Math.PI*lat/180));
-
-        // Calculate the minimum and maximum latitude and longitude
-        double minLat = lat - dLat * 180/Math.PI;
-        double maxLat = lat + dLat * 180/Math.PI;
-        double minLon = lon - dLon * 180/Math.PI;
-        double maxLon = lon + dLon * 180/Math.PI;
-
-        // Create a new list to store the coordinates
-        List<GPSCoordinate> area = new List<GPSCoordinate>();
-        // Iterate through the range of latitude and longitude
-        for (double i = minLat; i <= maxLat; i = i + 0.0001) {
-            for (double j = minLon; j <= maxLon; j = j + 0.0001) {
-                // Add the coordinate to the list
-                area.Add(new GPSCoordinate(i, j));
-            }
-        }
-        // Return the list of coordinates
-        return area;
-    }
-}
-
-// Class to represent a GPS coordinate
-class GPSCoordinate {
-    public double Latitude { get; set; }
-    public double Longitude { get; set; }
-    public GPSCoordinate(double lat, double lon) {
-        Latitude = lat;
-        Longitude = lon;
-    }
-}
-
