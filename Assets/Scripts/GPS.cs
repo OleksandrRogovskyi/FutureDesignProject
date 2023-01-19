@@ -103,10 +103,10 @@ public class GPS : MonoBehaviour
         }
         else
         {
-            description[0].gameObject.SetActive(false);
+            /*description[0].gameObject.SetActive(false);*/
             button.SetActive(true);
-            /*canUseLocation = true;
-            
+            canUseLocation = true;
+            /*
             description[0].text = "Current location: " + Input.location.lastData.latitude + " , "+ Input.location.lastData.longitude;
             
             _distanceToEnd = CalculateDistance(Input.location.lastData.latitude, Input.location.lastData.longitude,
@@ -123,12 +123,12 @@ public class GPS : MonoBehaviour
         //Input.location.Stop();
     }
 
-    public void CanUseLocation( bool canUse)
+    /*public void CanUseLocation( bool canUse)
     {
         canUseLocation = canUse;
         description[0].gameObject.SetActive(true);
         button.SetActive(false);
-    }
+    }*/
     public void ReachedEndLoc()
     {
         description[1].text = "Arrived at end location";

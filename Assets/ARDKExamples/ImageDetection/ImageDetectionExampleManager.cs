@@ -14,6 +14,7 @@ using Niantic.ARDK.Extensions;
 using Niantic.ARDK.Utilities;
 
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UIElements;
 using Button = UnityEngine.UI.Button;
 
@@ -100,6 +101,14 @@ namespace Niantic.ARDKExamples
     {
       ARSessionFactory.SessionInitialized += SetupSession;
       SetupCodeImageDetectionManager();
+      if (onArivall == null)
+      {
+        onArivall = new UnityEvent();
+      }
+      if (onUp == null)
+      {
+        onUp = new UnityEvent();
+      }
     }
 
     private void SetupSession(AnyARSessionInitializedArgs arg)
@@ -231,6 +240,9 @@ namespace Niantic.ARDKExamples
       }
     }
     private GameObject KukiBusScene = null;
+    public UnityEvent onArivall;
+    public UnityEvent onUp;
+    public GameObject Notification = null;
     public void ResetAncor()
     {
       Destroy(KukiBusScene);
@@ -242,23 +254,42 @@ namespace Niantic.ARDKExamples
       Vector3 position = gameObjectOnImage.transform.position;
       KukiBusScene = Instantiate(KukiBus);
       KukiBusScene.transform.position = new Vector3(x: position.x, y: position.y + 1f, z: position.z);
-      StartCoroutine(MoveBusDown(KukiBusScene, position));
+      StartCoroutine(MoveBusDown(KukiBusScene, position, true));
     }
 
-    IEnumerator MoveBusDown(GameObject KukiBusRef, Vector3 endPos)
+    IEnumerator MoveBusDown(GameObject KukiBusRef, Vector3 endPos, bool DOWN)
     {
-      while (KukiBusRef.transform.position.y >= endPos.y + 0.01f)
+      while ((KukiBusRef.transform.position.y >= endPos.y + 0.01f && DOWN)||(KukiBusRef.transform.position.y <= endPos.y - 0.01f && !DOWN))
       {
         yield return new WaitForSeconds(0.01f);
         Vector3 ypos = Vector3.Lerp(KukiBusRef.transform.position, endPos, 1 * Time.deltaTime);
         KukiBusRef.transform.position = new Vector3(ypos.x, ypos.y, ypos.z);
       }
-      Debug.Log("landed");
-      yield return null;
+      if (DOWN)
+      {
+        Debug.Log("landed");
+        onArivall.Invoke();
+        yield return null;
+        StartCoroutine(NotificationCouroutine());
+      }
+      else
+      {
+        Debug.Log("isUp");
+        onUp.Invoke();
+        yield return null;
+      }
+    }
+
+    IEnumerator NotificationCouroutine()
+    {
+      yield return new WaitForSeconds(3);
+      Notification.SetActive(false);
     }
     public void KukiBusAscend ()
     {
-      
+      Vector3 position = KukiBusScene.transform.position;
+      position = new Vector3(position.x, position.y + 1f, position.z);
+      StartCoroutine(MoveBusDown(KukiBusScene, position, false));
     }
 
     private void SetPlaneColor(GameObject plane, string imageName)

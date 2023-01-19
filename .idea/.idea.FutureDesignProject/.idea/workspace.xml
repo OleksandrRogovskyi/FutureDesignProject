@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c8916da2-2681-4761-b8eb-2110d9321f41" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.FutureDesignProject/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FutureDesignProject/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/ARScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/ARScene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/GPS.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/GPS.cs" afterDir="false" />
-    </list>
+    <list default="true" id="c8916da2-2681-4761-b8eb-2110d9321f41" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -87,7 +83,8 @@
       <updated>1673951688820</updated>
       <workItem from="1673951691913" duration="4039000" />
       <workItem from="1673973013930" duration="8022000" />
-      <workItem from="1674035563068" duration="7543000" />
+      <workItem from="1674035563068" duration="11707000" />
+      <workItem from="1674122349648" duration="801000" />
     </task>
     <servers />
   </component>
