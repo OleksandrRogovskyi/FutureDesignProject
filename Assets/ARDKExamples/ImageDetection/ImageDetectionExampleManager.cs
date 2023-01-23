@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+
 using Niantic.ARDK.AR;
 using Niantic.ARDK.AR.Anchors;
 using Niantic.ARDK.AR.ARSessionEventArgs;
@@ -14,9 +15,11 @@ using Niantic.ARDK.Extensions;
 using Niantic.ARDK.Utilities;
 
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine.UIElements;
 using Button = UnityEngine.UI.Button;
+using Slider = UnityEngine.UI.Slider;
 
 namespace Niantic.ARDKExamples
 {
@@ -76,8 +79,10 @@ namespace Niantic.ARDKExamples
     [Header("KukiBus Stuff")]
     public GameObject cube;
     public GameObject KukiBus;
+    public Slider BusSize;
     // A handle to the yeti image, used to remove and insert it into the _codeImageDetectionManager.
     private IARReferenceImage _yetiImage;
+    
     
     // Chooses different colors for different reference images. The "crowd" reference image is
     // added via the inspector of the ARImageDetectionManager.
@@ -243,6 +248,12 @@ namespace Niantic.ARDKExamples
     public UnityEvent onArivall;
     public UnityEvent onUp;
     public GameObject Notification = null;
+    
+    public void BusSizeChange()
+    {
+      Vector3 BusSizeVector = new Vector3(BusSize.value, BusSize.value, BusSize.value);
+      KukiBusScene.transform.localScale = BusSizeVector;
+    }
     public void ResetAncor()
     {
       Destroy(KukiBusScene);
@@ -253,7 +264,7 @@ namespace Niantic.ARDKExamples
     {
       Vector3 position = gameObjectOnImage.transform.position;
       KukiBusScene = Instantiate(KukiBus);
-      KukiBusScene.transform.position = new Vector3(x: position.x, y: position.y + 1f, z: position.z);
+      KukiBusScene.transform.position = new Vector3(x: position.x, y: position.y + 5f, z: position.z);
       StartCoroutine(MoveBusDown(KukiBusScene, position, true));
     }
 
@@ -262,7 +273,7 @@ namespace Niantic.ARDKExamples
       while ((KukiBusRef.transform.position.y >= endPos.y + 0.01f && DOWN)||(KukiBusRef.transform.position.y <= endPos.y - 0.01f && !DOWN))
       {
         yield return new WaitForSeconds(0.01f);
-        Vector3 ypos = Vector3.Lerp(KukiBusRef.transform.position, endPos, 1 * Time.deltaTime);
+        Vector3 ypos = Vector3.Lerp(KukiBusRef.transform.position, endPos, 0.5f * Time.deltaTime);
         KukiBusRef.transform.position = new Vector3(ypos.x, ypos.y, ypos.z);
       }
       if (DOWN)
@@ -288,7 +299,7 @@ namespace Niantic.ARDKExamples
     public void KukiBusAscend ()
     {
       Vector3 position = KukiBusScene.transform.position;
-      position = new Vector3(position.x, position.y + 1f, position.z);
+      position = new Vector3(position.x, position.y + 5f, position.z);
       StartCoroutine(MoveBusDown(KukiBusScene, position, false));
     }
 
@@ -338,3 +349,4 @@ namespace Niantic.ARDKExamples
     }
   }
 }
+
